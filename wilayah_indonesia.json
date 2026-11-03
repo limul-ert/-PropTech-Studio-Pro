@@ -1,0 +1,44 @@
+{
+  "35": {
+    "name": "Jawa Timur",
+    "cities": {
+      "3578": {
+        "name": "Kota Surabaya",
+        "districts": {
+          "357801": {
+            "name": "Kec. Tegalsari",
+            "villages": {
+              "3578011001": { "name": "Kel. Tegalsari", "zone": "R-3", "minGSB": 3 },
+              "3578011002": { "name": "Kel. Darmo", "zone": "K-1", "minGSB": 8 },
+              "3578011003": { "name": "Kel. Wonorejo", "zone": "R-2", "minGSB": 3.5 }
+            }
+          },
+          "357802": {
+            "name": "Kec. Gubeng",
+            "villages": {
+              "3578021001": { "name": "Kel. Gubeng", "zone": "K-2", "minGSB": 6 },
+              "3578021002": { "name": "Kel. Airlangga", "zone": "R-2", "minGSB": 4 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "31": {
+    "name": "DKI Jakarta",
+    "cities": {
+      "3174": {
+        "name": "Jakarta Selatan",
+        "districts": {
+          "317401": {
+            "name": "Kec. Kebayoran Baru",
+            "villages": {
+              "3174011001": { "name": "Kel. Senayan", "zone": "K-1", "minGSB": 10 },
+              "3174011002": { "name": "Kel. Gandaria Utara", "zone": "R-4", "minGSB": 3 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

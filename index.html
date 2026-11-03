@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropTech Studio Pro - PNG Export Enabled Engine</title>
+    <style>
+        :root {
+            --bg-light: #f8fafc;
+            --panel-bg: #ffffff;
+            --panel-border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        header { background: #ffffff; border-bottom: 1px solid var(--panel-border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 14px; height: 14px; background: var(--primary); border-radius: 3px; transform: rotate(45deg); }
+        .brand h1 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .badge { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; font-size: 0.72rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+
+        .main-container { display: flex; flex: 1; height: calc(100vh - 53px); overflow: hidden; position: relative; }
+
+        .sidebar-left { width: 390px; background: var(--panel-bg); border-right: 1px solid var(--panel-border); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .card-box { background: #ffffff; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .card-title { font-size: 0.72rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        
+        .form-group { margin-bottom: 8px; position: relative; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; font-size: 0.85rem; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border); border-radius: 6px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: #ffffff; }
+        .inline-inputs { display: flex; gap: 8px; }
+        .inline-inputs .form-group { flex: 1; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .metric-card { background: var(--input-bg); border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; }
+        .metric-card .lbl { font-size: 0.68rem; color: var(--text-muted); }
+        .metric-card .val { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
+
+        .btn-action { width: 100%; padding: 10px; font-size: 0.85rem; font-weight: 600; color: #fff; background: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-top: 4px; }
+        .btn-action:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #475569; }
+        .btn-secondary:hover { background: #334155; }
+        .btn-png { background: #0284c7; }
+        .btn-png:hover { background: #0369a1; }
+
+        /* Workspace Canvas */
+        .workspace { flex: 1; background: #e2e8f0; overflow: auto; padding: 40px; position: relative; transition: all 0.3s ease; }
+        .workspace::-webkit-scrollbar { width: 10px; height: 10px; }
+        .workspace::-webkit-scrollbar-track { background: #cbd5e1; }
+        .workspace::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 5px; }
+
+        #svgCanvas { background-color: #ffffff; background-image: radial-gradient(#cbd5e1 1px, transparent 0); background-size: 20px 20px; border: 1px solid #cbd5e1; border-radius: 8px; display: block; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .zoom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 30px; border: 1px solid var(--panel-border); z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-zoom { background: transparent; color: var(--text-main); border: 1px solid var(--panel-border); width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        .btn-zoom:hover { background: var(--primary); color: #fff; }
+
+        /* Right Sidebar Panel Collapsible */
+        .sidebar-right { width: 260px; background: var(--panel-bg); border-left: 1px solid var(--panel-border); padding: 16px; overflow-y: auto; transition: transform 0.3s ease, margin-right 0.3s ease; position: relative; }
+        .sidebar-right.collapsed { margin-right: -260px; }
+
+        .btn-toggle-sidebar {
+            position: fixed;
+            top: 65px;
+            right: 265px;
+            background: #ffffff;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: right 0.3s ease;
+        }
+        .btn-toggle-sidebar.collapsed { right: 15px; }
+
+        .history-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 6px; padding: 10px; margin-bottom: 8px; cursor: pointer; }
+        .history-card:hover { border-color: var(--primary); background: #eff6ff; }
+        .history-card h4 { font-size: 0.82rem; color: var(--text-main); margin-bottom: 2px; }
+        .history-card p { font-size: 0.72rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="brand-icon"></div>
+            <h1>PropTech Studio Pro</h1>
+        </div>
+        <span class="badge">PNG Image & Legal Citation Generator</span>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar-left">
+            <div class="card-box">
+                <div class="card-title">📌 Detail Properti & Bentuk</div>
+                <div class="form-group">
+                    <label>Nama Properti / Klien</label>
+                    <input type="text" id="propName" value="Penilaian Obyek Lahan">
+                </div>
+                <div class="form-group">
+                    <label>Bentuk Geometri Tanah</label>
+                    <select id="shapeType" onchange="toggleShapeInputs(); updateRender();">
+                        <option value="RECTANGLE">Persegi Panjang Standar</option>
+                        <option value="SHAPE_L">Tanah Leter L</option>
+                        <option value="SHAPE_T" selected>Tanah Leter T</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Arah Hadap Lahan / Bangunan</label>
+                    <select id="facingDirection" onchange="calculateRDTRGSB(); updateRender();">
+                        <option value="0" selected>Utara (0°)</option>
+                        <option value="45">Timur Laut (45°)</option>
+                        <option value="90">Timur (90°)</option>
+                        <option value="135">Tenggara (135°)</option>
+                        <option value="180">Selatan (180°)</option>
+                        <option value="225">Barat Daya (225°)</option>
+                        <option value="270">Barat (270°)</option>
+                        <option value="315">Barat Laut (315°)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title">⚖️ Acuan Lokasi & Elemen Jalan</div>
+                <div class="form-group">
+                    <label>Provinsi</label>
+                    <select id="provSelect" onchange="loadRealCities()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Kabupaten / Kota</label>
+                    <select id="citySelect" onchange="loadRealDistricts()"></select>
+                </div>
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Kecamatan</label>
+                        <select id="kecSelect" onchange="loadRealVillages()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelurahan / Desa</label>
+                        <select id="kelSelect" onchange="calculateRDTRGSB()"></select>
+                    </div>
+                </div>
+
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Hirarki Jalan</label>
+                        <select id="roadType" onchange="calculateRDTRGSB()">
+                            <option value="LOCAL" selected>Jalan Lokal / Perumahan</option>
+                            <option value="COLLECTOR">Jalan Kolektor</option>
+                            <option value="ARTERIAL">Jalan Arteri / Utama</option>
+                            <option value="ENVIRONMENT">Jalan Lingkungan / Gang</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sifat Jalan</label>
+                        <select id="roadSystem" onchange="calculateRDTRGSB()">
+                            <option value="SECONDARY" selected>Sekunder (Perkotaan)</option>
+                            <option value="PRIMARY">Primer (Antar Kota)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Lebar Jalan Utama (m)</label>
+                        <input type="number" id="roadWidth" value="8" step="0.5" oninput="calculateRDTRGSB();">
+                    </div>
+                    <div class="form-group">
+                        <label>Lebar Trotoar / Got (m)</label>
+                        <input type="number" id="sidewalkWidth" value="1.5" step="0.5" oninput="updateRender();">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Zonasi Peruntukan Lahan</label>
+                    <select id="zoneSelect" onchange="calculateRDTRGSB()">
+                        <option value="RESIDENTIAL">Permukiman / Perumahan (R)</option>
+                        <option value="COMMERCIAL">Komersial / Perdagangan (K)</option>
+                        <option value="INDUSTRIAL">Kawasan Industri (I)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>GSB Perda Resmi (m)</label>
+                    <input type="number" id="gsbValue" value="5" step="0.5" oninput="updateRender()">
+                </div>
+            </div>
+
+            <!-- KOTAK KUTIPAN PERDA UNTUK DISALIN -->
+            <div class="card-box" style="border-color: #bfdbfe; background: #f0f9ff;">
+                <div class="card-title" style="color: var(--primary);">📜 Kutipan Landasan Hukum Perda</div>
+                <div class="form-group">
+                    <textarea id="legalCitationText" rows="4" readonly style="font-size: 0.72rem; font-family: monospace; line-height: 1.4; color: #1e3a8a; background: #ffffff; resize: none;"></textarea>
+                </div>
+                <button class="btn-action" style="background: #16a34a;" onclick="copyLegalCitation()">📋 Salin Kutipan Perda</button>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title">📐 Dimensi Utama Tanah</div>
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Lebar Depan (m)</label>
+                        <input type="number" id="landW" value="16" step="0.5" oninput="updateRender()">
+                    </div>
+                    <div class="form-group">
+                        <label>Panjang Total (m)</label>
+                        <input type="number" id="landH" value="20" step="0.5" oninput="updateRender()">
+                    </div>
+                </div>
+                <div id="extraDimContainer" class="inline-inputs">
+                    <div class="form-group">
+                        <label>Lebar Badan (m)</label>
+                        <input type="number" id="stemW" value="8" step="0.5" oninput="updateRender()">
+                    </div>
+                    <div class="form-group">
+                        <label>Panjang Depan (m)</label>
+                        <input type="number" id="topH" value="6" step="0.5" oninput="updateRender()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title">🏗️ Dimensi Bangunan</div>
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Lebar Bgn (m)</label>
+                        <input type="number" id="buildW" value="8" step="0.5" oninput="updateRender()">
+                    </div>
+                    <div class="form-group">
+                        <label>Panjang Bgn (m)</label>
+                        <input type="number" id="buildH" value="10" step="0.5" oninput="updateRender()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mundur Bgn dari GSB (m)</label>
+                    <input type="number" id="buildOffsetGSB" value="1" step="0.5" oninput="updateRender()">
+                </div>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title">📊 Analisis Luas & RAB</div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="lbl">Luas Tanah</div>
+                        <div class="val" id="lblLandArea">208 m²</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="lbl">Luas Bangunan</div>
+                        <div class="val" id="lblBuildArea">80 m²</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="lbl">KDB (Koefisien)</div>
+                        <div class="val" id="lblKDB" style="color:var(--warning);">38.5 %</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="lbl">Est. Biaya Bangunan</div>
+                        <div class="val" id="lblRAB" style="font-size:0.75rem;">Rp 360 Jt</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="saveToLocalDB()">💾 Simpan ke DB Lokal</button>
+            <button class="btn-action btn-png" onclick="exportPNG()">🖼️ Export PNG Image</button>
+            <button class="btn-action btn-secondary" onclick="exportSVG()">📥 Export SVG Vector</button>
+        </div>
+
+        <div class="workspace">
+            <svg id="svgCanvas" width="900" height="750" xmlns="http://www.w3.org/2000/svg"></svg>
+
+            <div class="zoom-toolbar">
+                <button class="btn-zoom" onclick="zoomCanvas(0.1)">+</button>
+                <button class="btn-zoom" onclick="zoomCanvas(-0.1)">-</button>
+                <button class="btn-zoom" onclick="resetZoom()">R</button>
+            </div>
+        </div>
+
+        <button id="toggleBtn" class="btn-toggle-sidebar" onclick="toggleSidebarRight()" title="Sembunyikan/Tampilkan Panel Arsip">▶</button>
+
+        <div id="sidebarRight" class="sidebar-right">
+            <div class="card-title">Arsip DB Lokal</div>
+            <div id="historyList">
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Belum ada arsip.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentZoom = 1;
+        const scale = 20;
+        const svg = document.getElementById('svgCanvas');
+
+        let db;
+        const dbReq = indexedDB.open("PropTechStudioDB_v26", 1);
+        dbReq.onupgradeneeded = e => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("surveys")) db.createObjectStore("surveys", { keyPath: "id", autoIncrement: true });
+        };
+        dbReq.onsuccess = e => { db = e.target.result; loadHistory(); };
+
+        const BASE_API = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+        function toggleSidebarRight() {
+            const sidebar = document.getElementById('sidebarRight');
+            const btn = document.getElementById('toggleBtn');
+            sidebar.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed');
+            btn.innerText = sidebar.classList.contains('collapsed') ? "◀" : "▶";
+        }
+
+        async function loadRealProvinces() {
+            const provSelect = document.getElementById('provSelect');
+            try {
+                const res = await fetch(`${BASE_API}/provinces.json`);
+                const data = await res.json();
+                provSelect.innerHTML = '';
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.innerText = item.name;
+                    provSelect.appendChild(opt);
+                });
+                loadRealCities();
+            } catch (err) { console.error("Gagal load API Provinsi:", err); }
+        }
+
+        async function loadRealCities() {
+            const provId = document.getElementById('provSelect').value;
+            const citySelect = document.getElementById('citySelect');
+            citySelect.innerHTML = '<option>Memuat Kota...</option>';
+
+            try {
+                const res = await fetch(`${BASE_API}/regencies/${provId}.json`);
+                const data = await res.json();
+                citySelect.innerHTML = '';
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.innerText = item.name;
+                    citySelect.appendChild(opt);
+                });
+                loadRealDistricts();
+            } catch (err) { console.error("Gagal load API Kota:", err); }
+        }
+
+        async function loadRealDistricts() {
+            const cityId = document.getElementById('citySelect').value;
+            const kecSelect = document.getElementById('kecSelect');
+            kecSelect.innerHTML = '<option>Memuat Kecamatan...</option>';
+
+            try {
+                const res = await fetch(`${BASE_API}/districts/${cityId}.json`);
+                const data = await res.json();
+                kecSelect.innerHTML = '';
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.innerText = item.name;
+                    kecSelect.appendChild(opt);
+                });
+                loadRealVillages();
+            } catch (err) { console.error("Gagal load API Kecamatan:", err); }
+        }
+
+        async function loadRealVillages() {
+            const kecId = document.getElementById('kecSelect').value;
+            const kelSelect = document.getElementById('kelSelect');
+            kelSelect.innerHTML = '<option>Memuat Kelurahan...</option>';
+
+            try {
+                const res = await fetch(`${BASE_API}/villages/${kecId}.json`);
+                const data = await res.json();
+                kelSelect.innerHTML = '';
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.innerText = item.name;
+                    kelSelect.appendChild(opt);
+                });
+                calculateRDTRGSB();
+            } catch (err) { console.error("Gagal load API Kelurahan:", err); }
+        }
+
+        function calculateRDTRGSB() {
+            const citySelect = document.getElementById('citySelect');
+            const cityName = citySelect.options[citySelect.selectedIndex]?.text || '';
+            const kecSelect = document.getElementById('kecSelect');
+            const kecName = kecSelect.options[kecSelect.selectedIndex]?.text || '';
+            const kelSelect = document.getElementById('kelSelect');
+            const kelName = kelSelect.options[kelSelect.selectedIndex]?.text || '';
+
+            const dirSelect = document.getElementById('facingDirection');
+            const facingText = dirSelect.options[dirSelect.selectedIndex]?.text || 'Utara';
+
+            const zone = document.getElementById('zoneSelect').value;
+            const roadType = document.getElementById('roadType').value;
+            const roadSystem = document.getElementById('roadSystem').value;
+            const rWidth = parseFloat(document.getElementById('roadWidth').value) || 0;
+            const sidewalkW = parseFloat(document.getElementById('sidewalkWidth').value) || 0;
+
+            if (rWidth <= 0) {
+                document.getElementById('gsbValue').value = 0;
+                return;
+            }
+
+            let gsb = 0;
+            let offsetModifier = 1;
+            let perdaTitle = "";
+            let legalArticle = "";
+
+            if (roadType === "ARTERIAL") offsetModifier = (roadSystem === "PRIMARY") ? 4 : 3;
+            else if (roadType === "COLLECTOR") offsetModifier = (roadSystem === "PRIMARY") ? 3 : 2;
+            else if (roadType === "LOCAL") offsetModifier = 1;
+            else if (roadType === "ENVIRONMENT") offsetModifier = 0.5;
+
+            if (zone === "COMMERCIAL") offsetModifier += 1;
+            if (zone === "INDUSTRIAL") offsetModifier += 2;
+
+            if (cityName.includes("SURABAYA")) {
+                perdaTitle = "Peraturan Walikota Surabaya No. 37 Tahun 2012 tentang Tata Cara Pengendalian Pemanfaatan Ruang";
+                legalArticle = "Pasal 18 Ayat (2): Kebutuhan Garis Sempadan Bangunan (GSB) ditetapkan berdasarkan hirarki lebar ruang milik jalan ditambah batas minimum zonasi peruntukan.";
+                gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 3 : Math.max(3, (rWidth / 2) + 1);
+            } else if (cityName.includes("JAKARTA")) {
+                perdaTitle = "Peraturan Gubernur DKI Jakarta No. 31 Tahun 2022 tentang Rencana Detail Tata Ruang (RDTR)";
+                legalArticle = "Pasal 42: Batas Garis Sempadan Bangunan (GSB) untuk persil yang berbatasan dengan jalan raya dihitung dari as jalan ditambah jarak bebas minimum zonasi.";
+                gsb = (roadType === "ARTERIAL") ? (rWidth / 2) + 2 : Math.max(2, (rWidth / 2) + 0.5);
+            } else if (cityName.includes("BANDUNG")) {
+                perdaTitle = "Peraturan Daerah Kota Bandung No. 05 Tahun 2010 tentang Bangunan Gedung";
+                legalArticle = "Pasal 24: Garis Sempadan Bangunan ditetapkan sekurang-kurangnya (½ x lebar Rumaja) ditambah offset fungsi jaringan jalan.";
+                gsb = (rWidth / 2) + offsetModifier;
+            } else if (cityName.includes("MADIUN")) {
+                perdaTitle = "Peraturan Daerah Kota Madiun No. 06 Tahun 2011 tentang RTRW / RDTR Kota Madiun";
+                legalArticle = "Pasal 31: Penetapan GSB jaringan jalan perkotaan dihitung dari garis tengah (as) jalan dengan mempertimbangkan fungsi jalan dan keselamatan penerangan.";
+                gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 2.5 : Math.max(3, (rWidth / 2) + 1);
+            } else {
+                perdaTitle = "Peraturan Menteri PUPR No. 06/PRT/M/2007 tentang Pedoman Umum Rencana Tata Bangunan dan Lingkungan";
+                legalArticle = "BAB III Bagian B: Garis Sempadan Bangunan (GSB) minimum dihitung ½ (setengah) lebar Rumaja + offset jaringan jalan setempat.";
+                gsb = (rWidth / 2) + offsetModifier;
+            }
+
+            document.getElementById('gsbValue').value = gsb;
+
+            const fullCitation = `LANDASAN HUKUM GSB PROPERTI:
+----------------------------------------
+Lokasi: ${kelName}, ${kecName}, ${cityName}
+Arah Hadap Lahan: ${facingText}
+Fungsi Jalan: Jalan ${roadType} (${roadSystem}) - Lebar Jalan ${rWidth}m
+Lebar Trotoar / Drainase: ${sidewalkW}m
+Peruntukan Zonasi: ${zone}
+
+DASAR REGULASI RESMI:
+${perdaTitle}
+
+PASAL / KETENTUAN KUTIPAN:
+"${legalArticle}"
+
+KALKULASI GSB TERHUTANG:
+GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${gsb} Meter dari As Jalan.`;
+
+            document.getElementById('legalCitationText').value = fullCitation;
+            updateRender();
+        }
+
+        function copyLegalCitation() {
+            const citationText = document.getElementById('legalCitationText');
+            citationText.select();
+            citationText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(citationText.value);
+            alert("Kutipan Perda berhasil disalin ke Clipboard!");
+        }
+
+        function toggleShapeInputs() {
+            const shape = document.getElementById('shapeType').value;
+            document.getElementById('extraDimContainer').style.display = (shape === 'RECTANGLE') ? 'none' : 'flex';
+        }
+
+        function calculatePolygonArea(points) {
+            let area = 0;
+            const n = points.length;
+            for (let i = 0; i < n; i++) {
+                let j = (i + 1) % n;
+                area += points[i].x * points[j].y;
+                area -= points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
+        function updateRender() {
+            const shapeType = document.getElementById('shapeType').value;
+            const roadWidth = parseFloat(document.getElementById('roadWidth').value) || 0;
+            const sidewalkWidth = parseFloat(document.getElementById('sidewalkWidth').value) || 0;
+            const gsbValue = parseFloat(document.getElementById('gsbValue').value) || 0;
+            const angle = parseInt(document.getElementById('facingDirection').value) || 0;
+            
+            const W = parseFloat(document.getElementById('landW').value) || 0;
+            const H = parseFloat(document.getElementById('landH').value) || 0;
+            const stemW = parseFloat(document.getElementById('stemW').value) || (W * 0.5);
+            const topH = parseFloat(document.getElementById('topH').value) || (H * 0.4);
+
+            const buildW = parseFloat(document.getElementById('buildW').value) || 0;
+            const buildH = parseFloat(document.getElementById('buildH').value) || 0;
+            const buildOffsetGSB = parseFloat(document.getElementById('buildOffsetGSB').value) || 0;
+            const costPerM2 = 4500000;
+
+            let rawPoints = [];
+            if (shapeType === 'RECTANGLE') {
+                rawPoints = [{x: 0, y: 0}, {x: W, y: 0}, {x: W, y: H}, {x: 0, y: H}];
+            } else if (shapeType === 'SHAPE_L') {
+                rawPoints = [{x: 0, y: 0}, {x: W, y: 0}, {x: W, y: topH}, {x: stemW, y: topH}, {x: stemW, y: H}, {x: 0, y: H}];
+            } else if (shapeType === 'SHAPE_T') {
+                const sideW = (W - stemW) / 2;
+                rawPoints = [
+                    {x: 0, y: 0}, {x: W, y: 0}, {x: W, y: topH}, 
+                    {x: W - sideW, y: topH}, {x: W - sideW, y: H}, 
+                    {x: sideW, y: H}, {x: sideW, y: topH}, {x: 0, y: topH}
+                ];
+            }
+
+            const landAreaM2 = calculatePolygonArea(rawPoints);
+            const buildAreaM2 = buildW * buildH;
+            const kdb = landAreaM2 > 0 ? ((buildAreaM2 / landAreaM2) * 100).toFixed(1) : 0;
+            const totalEstCost = buildAreaM2 * costPerM2;
+
+            document.getElementById('lblLandArea').innerText = `${landAreaM2.toFixed(0)} m²`;
+            document.getElementById('lblBuildArea').innerText = `${buildAreaM2} m²`;
+            document.getElementById('lblKDB').innerText = `${kdb} %`;
+            document.getElementById('lblRAB').innerText = `Rp ${(totalEstCost / 1000000).toFixed(0)} Jt`;
+
+            const padding = 180;
+            const svgW = Math.max(900, (W * scale) + (padding * 2));
+            const svgH = Math.max(750, ((H + roadWidth + (sidewalkWidth * 2) + 8) * scale) + padding);
+            
+            svg.setAttribute("width", svgW);
+            svg.setAttribute("height", svgH);
+
+            const startX = (svgW - (W * scale)) / 2;
+            const roadY = 100;
+            const roadPx = roadWidth * scale;
+            const sidewalkPx = sidewalkWidth * scale;
+            
+            const topSidewalkY = roadY - sidewalkPx;
+            const bottomSidewalkY = roadY + roadPx;
+            const landY = bottomSidewalkY + sidewalkPx;
+
+            const asJalanY = roadY + (roadPx / 2);
+            const gsbY = asJalanY + (gsbValue * scale);
+
+            const svgPointsStr = rawPoints.map(p => `${startX + (p.x * scale)},${landY + (p.y * scale)}`).join(' ');
+
+            const buildX = startX + ((W - buildW) * scale / 2);
+            const buildY = gsbY + (buildOffsetGSB * scale);
+
+            const centerX = svgW / 2;
+            const centerY = svgH / 2;
+
+            while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+
+            svg.innerHTML = `
+                <defs>
+                    <pattern id="roadPattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="10" x2="10" y2="0" stroke="#cbd5e1" stroke-width="1.5"/>
+                    </pattern>
+                    <pattern id="trotoarPattern" width="6" height="6" patternUnits="userSpaceOnUse">
+                        <rect width="5" height="5" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+
+                <!-- Group Rotasi Denah -->
+                <g transform="rotate(${angle}, ${centerX}, ${centerY})">
+                    
+                    <!-- Trotoar Atas -->
+                    <rect x="0" y="${topSidewalkY}" width="${svgW}" height="${sidewalkPx}" fill="url(#trotoarPattern)" stroke="#94a3b8" stroke-width="1" />
+                    <text x="25" y="${topSidewalkY + 12}" fill="#64748b" font-size="10">Trotoar/Drainase (${sidewalkWidth}m)</text>
+
+                    <!-- Badan Jalan Raya -->
+                    <rect x="0" y="${roadY}" width="${svgW}" height="${roadPx}" fill="#f1f5f9" />
+                    <rect x="0" y="${roadY}" width="${svgW}" height="${roadPx}" fill="url(#roadPattern)" />
+                    
+                    <!-- Trotoar Bawah (Depan Persil) -->
+                    <rect x="0" y="${bottomSidewalkY}" width="${svgW}" height="${sidewalkPx}" fill="url(#trotoarPattern)" stroke="#94a3b8" stroke-width="1" />
+                    <text x="25" y="${bottomSidewalkY + 12}" fill="#64748b" font-size="10">Trotoar/Drainase (${sidewalkWidth}m)</text>
+
+                    <!-- As Jalan -->
+                    <line x1="0" y1="${asJalanY}" x2="${svgW}" y2="${asJalanY}" stroke="#64748b" stroke-width="2" stroke-dasharray="8,6" />
+                    <text x="25" y="${asJalanY - 8}" fill="#475569" font-weight="bold" font-size="11">AS JALAN</text>
+                    <text x="25" y="${roadY + 14}" fill="#64748b" font-size="11">Lebar Badan Jalan: ${roadWidth}m</text>
+
+                    <!-- Polygon Persil Tanah -->
+                    <polygon points="${svgPointsStr}" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+
+                    <!-- Garis GSB Merah -->
+                    <line x1="${startX - 40}" y1="${gsbY}" x2="${startX + (W * scale) + 40}" y2="${gsbY}" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,4" />
+                    
+                    <!-- Teks GSB Bersih -->
+                    <g transform="translate(${startX + (W * scale) + 15}, ${gsbY - 8})">
+                        <rect x="-4" y="-12" width="235" height="18" fill="#ffffff" rx="3" stroke="#fecdd3" stroke-width="1" />
+                        <text x="0" y="0" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="start">GARIS GSB (${gsbValue}m dari As Jalan)</text>
+                    </g>
+
+                    <!-- Bangunan Utama -->
+                    <rect x="${buildX}" y="${buildY}" width="${buildW * scale}" height="${buildH * scale}" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" />
+                    <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) - 4}" fill="#1e40af" font-weight="bold" font-size="12" text-anchor="middle">BANGUNAN Utama</text>
+                    <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) + 14}" fill="#1d4ed8" font-size="11" text-anchor="middle">${buildW}m x ${buildH}m (${buildAreaM2} m²)</text>
+
+                    <!-- Dimensi Arrow GSB -->
+                    <line x1="${startX - 25}" y1="${asJalanY}" x2="${startX - 25}" y2="${gsbY}" stroke="#dc2626" stroke-width="1.5" />
+                    <circle cx="${startX - 25}" cy="${asJalanY}" r="3" fill="#dc2626" />
+                    <circle cx="${startX - 25}" cy="${gsbY}" r="3" fill="#dc2626" />
+                    <text x="${startX - 32}" y="${(asJalanY + gsbY)/2 + 4}" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="end">${gsbValue}m</text>
+                </g>
+
+                <!-- Indikator Kompas -->
+                <g transform="translate(${svgW - 70}, 60)">
+                    <circle cx="0" cy="0" r="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+                    <g transform="rotate(${-angle})">
+                        <polygon points="0,-22 -7,-2 0,-8 7,-2" fill="#dc2626" />
+                        <polygon points="0,22 -7,2 0,8 7,2" fill="#64748b" />
+                        <text x="-4" y="-25" fill="#dc2626" font-weight="bold" font-size="11">U</text>
+                    </g>
+                </g>
+            `;
+        }
+
+        function zoomCanvas(amount) {
+            currentZoom = Math.min(Math.max(0.5, currentZoom + amount), 2.5);
+            svg.style.transform = `scale(${currentZoom})`;
+            svg.style.transformOrigin = "top center";
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            svg.style.transform = `scale(1)`;
+        }
+
+        function saveToLocalDB() {
+            const data = {
+                name: document.getElementById('propName').value,
+                prov: document.getElementById('provSelect').value,
+                city: document.getElementById('citySelect').value,
+                kec: document.getElementById('kecSelect').value,
+                kel: document.getElementById('kelSelect').value,
+                facing: document.getElementById('facingDirection').value,
+                roadType: document.getElementById('roadType').value,
+                roadSystem: document.getElementById('roadSystem').value,
+                shapeType: document.getElementById('shapeType').value,
+                roadWidth: document.getElementById('roadWidth').value,
+                sidewalkWidth: document.getElementById('sidewalkWidth').value,
+                gsbValue: document.getElementById('gsbValue').value,
+                landW: document.getElementById('landW').value,
+                landH: document.getElementById('landH').value,
+                buildW: document.getElementById('buildW').value,
+                buildH: document.getElementById('buildH').value,
+                date: new Date().toLocaleDateString('id-ID')
+            };
+
+            const tx = db.transaction("surveys", "readwrite");
+            tx.objectStore("surveys").add(data);
+            tx.oncomplete = () => { loadHistory(); alert("Survei berhasil disimpan ke Database Lokal!"); };
+        }
+
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = "";
+            const tx = db.transaction("surveys", "readonly");
+            const req = tx.objectStore("surveys").getAll();
+
+            req.onsuccess = () => {
+                const items = req.result;
+                if (items.length === 0) {
+                    historyList.innerHTML = `<p style="font-size: 0.75rem; color: var(--text-muted);">Belum ada arsip.</p>`;
+                    return;
+                }
+                items.reverse().forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    card.innerHTML = `
+                        <h4>${item.name}</h4>
+                        <p>GSB: ${item.gsbValue}m | Dimensi: ${item.landW}x${item.landH}m</p>
+                    `;
+                    card.onclick = () => populateForm(item);
+                    historyList.appendChild(card);
+                });
+            };
+        }
+
+        function populateForm(item) {
+            document.getElementById('propName').value = item.name;
+            if (item.shapeType) document.getElementById('shapeType').value = item.shapeType;
+            if (item.facing) document.getElementById('facingDirection').value = item.facing;
+            if (item.roadType) document.getElementById('roadType').value = item.roadType;
+            if (item.roadSystem) document.getElementById('roadSystem').value = item.roadSystem;
+            if (item.sidewalkWidth) document.getElementById('sidewalkWidth').value = item.sidewalkWidth;
+            document.getElementById('roadWidth').value = item.roadWidth;
+            document.getElementById('gsbValue').value = item.gsbValue;
+            document.getElementById('landW').value = item.landW;
+            document.getElementById('landH').value = item.landH;
+            document.getElementById('buildW').value = item.buildW;
+            document.getElementById('buildH').value = item.buildH;
+            toggleShapeInputs();
+            updateRender();
+        }
+
+        // FUNGSI EXPORT PNG HIGH RESOLUTION
+        function exportPNG() {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            
+            const svgWidth = parseFloat(svg.getAttribute("width"));
+            const svgHeight = parseFloat(svg.getAttribute("height"));
+            
+            canvas.width = svgWidth * 2; // Skala 2x agar hasil tajam/HD
+            canvas.height = svgHeight * 2;
+            ctx.scale(2, 2);
+
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function () {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, svgWidth, svgHeight);
+                ctx.drawImage(img, 0, 0);
+
+                const pngUrl = canvas.toDataURL("image/png");
+                const a = document.createElement("a");
+                a.href = pngUrl;
+                a.download = `${document.getElementById('propName').value}_Siteplan.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            img.src = url;
+        }
+
+        function exportSVG() {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${document.getElementById('propName').value}_Siteplan.svg`;
+            a.click();
+        }
+
+        window.onload = () => { 
+            loadRealProvinces();
+            toggleShapeInputs(); 
+            updateRender(); 
+        };
+    </script>
+</body>
+</html>
