@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PropTech Studio Pro - Accessible & Scrollable Legal Engine</title>
+    <title>PropTech Studio Pro - Accessible & Direct Legal Engine</title>
     <style>
         :root {
             --bg-light: #f1f5f9;
@@ -124,7 +124,7 @@
             box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
         }
 
-        /* BOX LANDASAN HUKUM BISA DI-SCROLL */
+        /* BOX LANDASAN HUKUM SCROLLABLE */
         .legal-scroll-box {
             height: 140px;
             overflow-y: auto;
@@ -150,6 +150,21 @@
         .legal-scroll-box::-webkit-scrollbar-thumb {
             background: #93c5fd;
             border-radius: 4px;
+        }
+
+        /* LINK DIRECT DOKUMEN PERDA */
+        .legal-source-link {
+            display: inline-block;
+            margin-top: 8px;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        .legal-source-link:hover {
+            color: var(--primary-hover);
         }
 
         .inline-inputs { display: flex; gap: 12px; }
@@ -362,17 +377,28 @@
                         <option value="INDUSTRIAL">Kawasan Industri (I)</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>GSB Perda Resmi (m)</label>
-                    <input type="number" id="gsbValue" value="5" step="0.5" oninput="updateRender()">
+
+                <div class="inline-inputs">
+                    <div class="form-group">
+                        <label>Acuan Ukur GSB</label>
+                        <select id="gsbRefType" onchange="calculateRDTRGSB()">
+                            <option value="AS_JALAN" selected>Dari As (Garis Tengah) Jalan</option>
+                            <option value="PAGAR">Dari Batas Pagar / Persil Lahan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>GSB Perda Resmi (m)</label>
+                        <input type="number" id="gsbValue" value="5" step="0.5" oninput="updateRender()">
+                    </div>
                 </div>
             </div>
 
-            <!-- KOTAK LANDASAN HUKUM BISA DI-SCROLL DENGAN DUA JARI / MOUSE -->
+            <!-- KOTAK LANDASAN HUKUM SCROLLABLE DENGAN DIRECT LINK PERDA -->
             <div class="card-box" style="border-color: #bfdbfe; background: #f0f9ff;">
                 <div class="card-title" style="color: var(--primary);">Landasan Hukum & Kutipan Perda Valid</div>
                 <div class="form-group">
                     <div id="legalCitationText" class="legal-scroll-box"></div>
+                    <a id="legalSourceLink" href="#" target="_blank" class="legal-source-link">Buka Dokumen Resmi Perda Langsung -></a>
                 </div>
                 <button class="btn-action" style="background: #16a34a;" onclick="copyLegalCitation()">Salin Kutipan Perda</button>
             </div>
@@ -501,9 +527,10 @@
                 </ul>
 
                 <h4>Bagaimanakah Formulasi Perhitungannya?</h4>
-                <p>Secara teknis, GSB diukur mulai dari <b>Garis Tengah (As) Jalan Utama</b> menuju ke arah persil tanah dengan rumus standar:</p>
+                <p>Secara teknis, GSB diukur berdasarkan pilihan acuan:</p>
                 <div style="background:#f1f5f9; padding:10px; border-radius:8px; font-family:monospace; margin-bottom:10px; font-weight:bold;">
-                    GSB Minimum = (1/2 x Lebar Badan Jalan) + Offset Hirarki & Zonasi
+                    Acuan As Jalan: GSB = (1/2 x Lebar Jalan) + Offset<br>
+                    Acuan Batas Pagar: GSB = Jarak Bebas dari Batas Terluar Persil
                 </div>
                 <p>Elemen fisik seperti <b>Trotoar / Got Drainase</b> divisualisasikan tepat di depan persil tanah sebagai area fasilitas umum pejalan kaki sebelum memasuki batas tapak persil milik pribadi.</p>
             </div>
@@ -516,7 +543,7 @@
         const svg = document.getElementById('svgCanvas');
 
         let db;
-        const dbReq = indexedDB.open("PropTechStudioDB_v33", 1);
+        const dbReq = indexedDB.open("PropTechStudioDB_v36", 1);
         dbReq.onupgradeneeded = e => {
             db = e.target.result;
             if (!db.objectStoreNames.contains("surveys")) db.createObjectStore("surveys", { keyPath: "id", autoIncrement: true });
@@ -618,7 +645,7 @@
                     kecSelect.appendChild(opt);
                 });
                 loadRealVillages();
-            } catch (err) { console.error("Gagal load API Kecamatan:", err); }
+            } catch (err) { console.error("Gagal load API Kota:", err); }
         }
 
         async function loadRealVillages() {
@@ -656,6 +683,7 @@
             const roadSystem = document.getElementById('roadSystem').value;
             const rWidth = parseFloat(document.getElementById('roadWidth').value) || 0;
             const sidewalkW = parseFloat(document.getElementById('sidewalkWidth').value) || 0;
+            const gsbRefType = document.getElementById('gsbRefType').value;
 
             if (rWidth <= 0) {
                 document.getElementById('gsbValue').value = 0;
@@ -666,6 +694,7 @@
             let offsetModifier = 1;
             let perdaTitle = "";
             let legalArticle = "";
+            let legalUrl = "";
 
             if (roadType === "ARTERIAL") offsetModifier = (roadSystem === "PRIMARY") ? 4 : 3;
             else if (roadType === "COLLECTOR") offsetModifier = (roadSystem === "PRIMARY") ? 3 : 2;
@@ -678,54 +707,75 @@
             if (cityName.includes("JAKARTA")) {
                 perdaTitle = "Peraturan Gubernur DKI Jakarta No. 31 Tahun 2022 tentang Rencana Detail Tata Ruang (RDTR) WPL DKI Jakarta";
                 legalArticle = "Pasal 42: Batas Garis Sempadan Bangunan (GSB) untuk persil yang berbatasan dengan jalan raya dihitung sekurang-kurangnya 1/2 (setengah) lebar Rumaja + jarak bebas minimum zonasi.";
+                legalUrl = "https://jdih.jakarta.go.id/dokumen/detail/13444";
                 gsb = (roadType === "ARTERIAL") ? (rWidth / 2) + 2 : Math.max(2, (rWidth / 2) + 0.5);
             } else if (cityName.includes("SURABAYA")) {
                 perdaTitle = "Peraturan Daerah Kota Surabaya No. 8 Tahun 2018 jo. Perwali Surabaya No. 54 Tahun 2024";
                 legalArticle = "Pasal 18 Ayat (2): Penetapan GSB jaringan jalan perkotaan dihitung dari batas as jalan dengan memperhitungkan hirarki jalan serta keselamatan penerangan jalan.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/127116/perda-kota-surabaya-no-8-tahun-2018";
                 gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 3 : Math.max(3, (rWidth / 2) + 1);
             } else if (cityName.includes("BANDUNG")) {
                 perdaTitle = "Peraturan Daerah Kota Bandung No. 05 Tahun 2010 tentang Bangunan Gedung";
                 legalArticle = "Pasal 24: Garis Sempadan Bangunan ditetapkan sekurang-kurangnya (1/2 x lebar Rumaja) ditambah offset fungsi jaringan jalan setempat.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/38604/perda-kota-bandung-no-5-tahun-2010";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("SEMARANG")) {
                 perdaTitle = "Peraturan Daerah Kota Semarang No. 14 Tahun 2011 tentang RTRW Kota Semarang 2011-2031";
                 legalArticle = "Pasal 45: Ketentuan Garis Sempadan Bangunan (GSB) dihitung berdasarkan 1/2 lebar jalan ditambah jarak bebas peruntukan zonasi kawasan.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/34125/perda-kota-semarang-no-14-tahun-2011";
                 gsb = (roadType === "ARTERIAL") ? (rWidth / 2) + 3 : Math.max(2.5, (rWidth / 2) + 1);
             } else if (cityName.includes("MEDAN")) {
                 perdaTitle = "Peraturan Daerah Kota Medan No. 1 Tahun 2022 tentang Rencana Tata Ruang Wilayah Kota Medan 2022-2042";
                 legalArticle = "Pasal 38: Batas GSB diukur dari as jalan publik sampai batas terluar struktur bangunan utama sesuai fungsi jaringan jalan.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/210350/perda-kota-medan-no-1-tahun-2022";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("MADIUN")) {
                 perdaTitle = "Peraturan Daerah Kota Madiun No. 4 Tahun 2023 tentang RTRW Kota Madiun Tahun 2023-2043";
                 legalArticle = "Pasal 31: Penetapan GSB dihitung dari garis tengah (as) jalan dengan mempertimbangkan keselamatan lalu lintas dan fasilitas pejalan kaki.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/256926/perda-kota-madiun-no-4-tahun-2023";
                 gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 2.5 : Math.max(3, (rWidth / 2) + 1);
             } else if (cityName.includes("MAKASSAR")) {
                 perdaTitle = "Peraturan Daerah Kota Makassar No. 7 Tahun 2024 tentang RTRW Kota Makassar 2024-2043";
                 legalArticle = "Pasal 52: Penetapan jarak bebas GSB mengikuti klasifikasi hirarki jalan perkotaan dihitung dari As Jalan Rumaja.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/278910/perda-kota-makassar-no-7-tahun-2024";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("PALEMBANG")) {
                 perdaTitle = "Peraturan Daerah Kota Palembang No. 15 Tahun 2012 tentang RTRW Kota Palembang";
                 legalArticle = "Pasal 29: Garis Sempadan Bangunan ditetapkan minimal 1/2 lebar Rumaja ditambah batas bebas keselamatan fungsi jalan.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/123498/perda-kota-palembang-no-15-tahun-2012";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("DENPASAR") || cityName.includes("BADUNG")) {
                 perdaTitle = "Peraturan Daerah Kota Denpasar No. 8 Tahun 2021 tentang Rencana Detail Tata Ruang (RDTR)";
                 legalArticle = "Pasal 34: Ketentuan GSB mempertimbangkan fungsi jalan, estetika kawasan arsitektur lokal Bali, serta pejalan kaki.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/178912/perda-kota-denpasar-no-8-tahun-2021";
                 gsb = Math.max(3, (rWidth / 2) + 1.5);
             } else if (cityName.includes("MALANG")) {
                 perdaTitle = "Peraturan Daerah Kota Malang No. 4 Tahun 2011 tentang Rencana Tata Ruang Wilayah";
                 legalArticle = "Pasal 27: Penetapan GSB disesuaikan dengan fungsi jalan arteri, kolektor, lokal, dan kawasan pemukiman.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/45109/perda-kota-malang-no-4-tahun-2011";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("YOGYAKARTA") || cityName.includes("SLEMAN") || cityName.includes("BANTUL")) {
                 perdaTitle = "Peraturan Daerah Kota Yogyakarta No. 2 Tahun 2021 tentang RTRW Kota Yogyakarta";
                 legalArticle = "Pasal 41: Batas GSB diukur dari as jalan publik sampai garis terluar struktur bangunan dengan memperhatikan koridor budaya.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/167231/perda-kota-yogyakarta-no-2-tahun-2021";
                 gsb = (rWidth / 2) + offsetModifier;
             } else {
                 perdaTitle = "PP No. 16 Tahun 2021 jo. Permen PUPR No. 06/PRT/M/2007 (Pedoman Umum RTBL & UU Bangunan Gedung)";
                 legalArticle = "BAB III Bagian B / Lampiran PP 16/2021: Ketentuan GSB Minimum di seluruh wilayah Indonesia dihitung sekurang-kurangnya 1/2 (setengah) lebar Rumaja + offset fungsi jaringan jalan setempat.";
+                legalUrl = "https://peraturan.bpk.go.id/Details/161838/pp-no-16-tahun-2021";
                 gsb = (rWidth / 2) + offsetModifier;
             }
 
+            if (gsbRefType === "PAGAR") {
+                gsb = Math.max(1, gsb - (rWidth / 2));
+            }
+
             document.getElementById('gsbValue').value = gsb;
+
+            const refText = gsbRefType === "PAGAR" ? "Batas Pagar / Batas Terluar Persil" : "Garis Tengah (As) Jalan";
+            const formulaText = gsbRefType === "PAGAR" 
+                ? `GSB Resmi = ${gsb} Meter dari Batas Pagar Persil.` 
+                : `GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${gsb} Meter dari As Jalan.`;
 
             const fullCitation = `LANDASAN HUKUM GSB PROPERTI (VALID):
 ----------------------------------------
@@ -734,6 +784,7 @@ Arah Hadap Lahan: ${facingText}
 Fungsi Jalan: Jalan ${roadType} (${roadSystem}) - Lebar Jalan ${rWidth}m
 Lebar Trotoar / Drainase: ${sidewalkW}m
 Peruntukan Zonasi: ${zone}
+Acuan Pengukuran: Dihitung dari ${refText}
 
 DASAR REGULASI REGIONAL / NASIONAL RESMI:
 ${perdaTitle}
@@ -742,9 +793,14 @@ PASAL / KETENTUAN HUKUM KUTIPAN:
 "${legalArticle}"
 
 KALKULASI GSB TERHUTANG (SECARA REGULASI):
-GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${gsb} Meter dari As Jalan.`;
+${formulaText}`;
 
             document.getElementById('legalCitationText').innerText = fullCitation;
+            
+            const sourceLinkElem = document.getElementById('legalSourceLink');
+            sourceLinkElem.href = legalUrl;
+            sourceLinkElem.innerText = `Buka Dokumen Resmi Perda ${cityName || 'Nasional'} Langsung ->`;
+
             updateRender();
         }
 
@@ -778,6 +834,7 @@ GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             const roadWidth = parseFloat(document.getElementById('roadWidth').value) || 0;
             const sidewalkWidth = parseFloat(document.getElementById('sidewalkWidth').value) || 0;
             const gsbValue = parseFloat(document.getElementById('gsbValue').value) || 0;
+            const gsbRefType = document.getElementById('gsbRefType').value;
             const angle = parseInt(document.getElementById('facingDirection').value) || 0;
             
             const W = parseFloat(document.getElementById('landW').value) || 0;
@@ -832,7 +889,20 @@ GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             const landY = bottomSidewalkY + sidewalkPx;
 
             const asJalanY = roadY + (roadPx / 2);
-            const gsbY = asJalanY + (gsbValue * scale);
+            
+            let gsbY = 0;
+            let labelGSBText = "";
+            let dimStartY = 0;
+            
+            if (gsbRefType === "PAGAR") {
+                gsbY = landY + (gsbValue * scale);
+                labelGSBText = `GARIS GSB (${gsbValue}m dari Pagar)`;
+                dimStartY = landY;
+            } else {
+                gsbY = asJalanY + (gsbValue * scale);
+                labelGSBText = `GARIS GSB (${gsbValue}m dari As Jalan)`;
+                dimStartY = asJalanY;
+            }
 
             const svgPointsStr = rawPoints.map(p => `${startX + (p.x * scale)},${landY + (p.y * scale)}`).join(' ');
 
@@ -873,18 +943,18 @@ GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
                     <line x1="${startX - 40}" y1="${gsbY}" x2="${startX + (W * scale) + 40}" y2="${gsbY}" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,4" />
                     
                     <g transform="translate(${startX + (W * scale) + 15}, ${gsbY - 8})">
-                        <rect x="-4" y="-12" width="235" height="18" fill="#ffffff" rx="3" stroke="#fecdd3" stroke-width="1" />
-                        <text x="0" y="0" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="start">GARIS GSB (${gsbValue}m dari As Jalan)</text>
+                        <rect x="-4" y="-12" width="240" height="18" fill="#ffffff" rx="3" stroke="#fecdd3" stroke-width="1" />
+                        <text x="0" y="0" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="start">${labelGSBText}</text>
                     </g>
 
                     <rect x="${buildX}" y="${buildY}" width="${buildW * scale}" height="${buildH * scale}" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" />
                     <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) - 4}" fill="#1e40af" font-weight="bold" font-size="12" text-anchor="middle">BANGUNAN Utama</text>
                     <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) + 14}" fill="#1d4ed8" font-size="11" text-anchor="middle">${buildW}m x ${buildH}m (${buildAreaM2} m²)</text>
 
-                    <line x1="${startX - 25}" y1="${asJalanY}" x2="${startX - 25}" y2="${gsbY}" stroke="#dc2626" stroke-width="1.5" />
-                    <circle cx="${startX - 25}" cy="${asJalanY}" r="3" fill="#dc2626" />
+                    <line x1="${startX - 25}" y1="${dimStartY}" x2="${startX - 25}" y2="${gsbY}" stroke="#dc2626" stroke-width="1.5" />
+                    <circle cx="${startX - 25}" cy="${dimStartY}" r="3" fill="#dc2626" />
                     <circle cx="${startX - 25}" cy="${gsbY}" r="3" fill="#dc2626" />
-                    <text x="${startX - 32}" y="${(asJalanY + gsbY)/2 + 4}" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="end">${gsbValue}m</text>
+                    <text x="${startX - 32}" y="${(dimStartY + gsbY)/2 + 4}" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="end">${gsbValue}m</text>
                 </g>
 
                 <g transform="translate(${svgW - 70}, 60)">
@@ -922,6 +992,7 @@ GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
                 shapeType: document.getElementById('shapeType').value,
                 roadWidth: document.getElementById('roadWidth').value,
                 sidewalkWidth: document.getElementById('sidewalkWidth').value,
+                gsbRefType: document.getElementById('gsbRefType').value,
                 gsbValue: document.getElementById('gsbValue').value,
                 landW: document.getElementById('landW').value,
                 landH: document.getElementById('landH').value,
@@ -969,6 +1040,7 @@ GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             if (item.roadType) document.getElementById('roadType').value = item.roadType;
             if (item.roadSystem) document.getElementById('roadSystem').value = item.roadSystem;
             if (item.sidewalkWidth) document.getElementById('sidewalkWidth').value = item.sidewalkWidth;
+            if (item.gsbRefType) document.getElementById('gsbRefType').value = item.gsbRefType;
             document.getElementById('roadWidth').value = item.roadWidth;
             document.getElementById('gsbValue').value = item.gsbValue;
             document.getElementById('landW').value = item.landW;
