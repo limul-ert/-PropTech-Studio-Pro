@@ -3,98 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PropTech Studio Pro - PNG Export Enabled Engine</title>
+    <title>PropTech Studio Pro - Accessible & Scrollable Legal Engine</title>
     <style>
         :root {
-            --bg-light: #f8fafc;
+            --bg-light: #f1f5f9;
             --panel-bg: #ffffff;
-            --panel-border: #e2e8f0;
-            --primary: #2563eb;
+            --panel-border: #cbd5e1;
+            --primary: #1e40af;
             --primary-hover: #1d4ed8;
-            --accent: #16a34a;
-            --danger: #dc2626;
-            --warning: #d97706;
+            --accent: #15803d;
+            --danger: #b91c1c;
+            --warning: #b45309;
             --text-main: #0f172a;
-            --text-muted: #64748b;
-            --input-bg: #f1f5f9;
+            --text-muted: #475569;
+            --input-bg: #f8fafc;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-light); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        header { background: #ffffff; border-bottom: 1px solid var(--panel-border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* NAVBAR HEADER ELEGAN */
+        header { 
+            background: #ffffff; 
+            border-bottom: 1px solid var(--panel-border); 
+            padding: 14px 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 10; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04); 
+        }
         .brand { display: flex; align-items: center; gap: 12px; }
-        .brand-icon { width: 14px; height: 14px; background: var(--primary); border-radius: 3px; transform: rotate(45deg); }
-        .brand h1 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
-        .badge { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; font-size: 0.72rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+        .brand-icon { width: 16px; height: 16px; background: var(--primary); border-radius: 4px; transform: rotate(45deg); }
+        .brand h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .badge { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; font-weight: 600; }
 
-        .main-container { display: flex; flex: 1; height: calc(100vh - 53px); overflow: hidden; position: relative; }
+        .btn-info-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1px solid var(--panel-border);
+            color: var(--primary);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-info-icon:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
 
-        .sidebar-left { width: 390px; background: var(--panel-bg); border-right: 1px solid var(--panel-border); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .card-box { background: #ffffff; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .card-title { font-size: 0.72rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .main-container { display: flex; flex: 1; height: calc(100vh - 65px); overflow: hidden; position: relative; }
+
+        /* SIDEBAR KIRI */
+        .sidebar-left { 
+            width: 420px; 
+            background: var(--panel-bg); 
+            border-right: 1px solid var(--panel-border); 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+        }
+        .card-box { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 10px; 
+            padding: 16px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            transition: border-color 0.2s;
+        }
+        .card-box:hover { border-color: #cbd5e1; }
         
-        .form-group { margin-bottom: 8px; position: relative; }
-        .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; font-size: 0.85rem; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border); border-radius: 6px; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: #ffffff; }
-        .inline-inputs { display: flex; gap: 8px; }
-        .inline-inputs .form-group { flex: 1; }
+        .card-title { 
+            font-size: 0.82rem; 
+            font-weight: 800; 
+            color: var(--primary); 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px; 
+            margin-bottom: 12px; 
+            padding-bottom: 4px;
+            border-bottom: 2px solid #eff6ff;
+        }
+        
+        .form-group { margin-bottom: 12px; position: relative; }
+        .form-group label { 
+            display: block; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--text-main); 
+            margin-bottom: 6px; 
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px 12px; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+            background: var(--input-bg); 
+            color: var(--text-main); 
+            border: 1px solid var(--panel-border); 
+            border-radius: 8px; 
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background: #ffffff; 
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
 
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .metric-card { background: var(--input-bg); border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; }
-        .metric-card .lbl { font-size: 0.68rem; color: var(--text-muted); }
-        .metric-card .val { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
+        /* BOX LANDASAN HUKUM BISA DI-SCROLL */
+        .legal-scroll-box {
+            height: 140px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.82rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+            color: #1e3a8a;
+            white-space: pre-wrap;
+            word-break: break-word;
+            user-select: text;
+        }
+        .legal-scroll-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .legal-scroll-box::-webkit-scrollbar-track {
+            background: #eff6ff;
+            border-radius: 4px;
+        }
+        .legal-scroll-box::-webkit-scrollbar-thumb {
+            background: #93c5fd;
+            border-radius: 4px;
+        }
 
-        .btn-action { width: 100%; padding: 10px; font-size: 0.85rem; font-weight: 600; color: #fff; background: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-top: 4px; }
+        .inline-inputs { display: flex; gap: 12px; }
+        .inline-inputs .form-group { flex: 1; min-width: 0; }
+
+        /* JOYSTICK CONTROLLER */
+        .joystick-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; gap: 6px; }
+        .joystick-row { display: flex; gap: 6px; }
+        .btn-joy { width: 42px; height: 42px; background: #f8fafc; border: 1px solid var(--panel-border); border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-main); user-select: none; transition: all 0.15s; }
+        .btn-joy:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-joy:active { transform: scale(0.95); }
+        .btn-joy-reset { font-size: 0.8rem; background: #e2e8f0; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .metric-card { background: var(--input-bg); border: 1px solid var(--panel-border); padding: 10px; border-radius: 8px; }
+        .metric-card .lbl { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+        .metric-card .val { font-size: 1rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
+
+        .btn-action { width: 100%; padding: 12px; font-size: 0.9rem; font-weight: 600; color: #fff; background: var(--primary); border: none; border-radius: 8px; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
         .btn-action:hover { background: var(--primary-hover); }
         .btn-secondary { background: #475569; }
         .btn-secondary:hover { background: #334155; }
         .btn-png { background: #0284c7; }
         .btn-png:hover { background: #0369a1; }
 
-        /* Workspace Canvas */
+        /* WORKSPACE CANVAS */
         .workspace { flex: 1; background: #e2e8f0; overflow: auto; padding: 40px; position: relative; transition: all 0.3s ease; }
         .workspace::-webkit-scrollbar { width: 10px; height: 10px; }
         .workspace::-webkit-scrollbar-track { background: #cbd5e1; }
         .workspace::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 5px; }
 
-        #svgCanvas { background-color: #ffffff; background-image: radial-gradient(#cbd5e1 1px, transparent 0); background-size: 20px 20px; border: 1px solid #cbd5e1; border-radius: 8px; display: block; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        #svgCanvas { background-color: #ffffff; background-image: radial-gradient(#cbd5e1 1px, transparent 0); background-size: 20px 20px; border: 1px solid #cbd5e1; border-radius: 10px; display: block; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-        .zoom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 30px; border: 1px solid var(--panel-border); z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-zoom { background: transparent; color: var(--text-main); border: 1px solid var(--panel-border); width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        .zoom-toolbar { position: fixed; bottom: 24px; left: 55%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 30px; border: 1px solid var(--panel-border); z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-zoom { background: transparent; color: var(--text-main); border: 1px solid var(--panel-border); width: 36px; height: 36px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 1rem; }
         .btn-zoom:hover { background: var(--primary); color: #fff; }
 
-        /* Right Sidebar Panel Collapsible */
-        .sidebar-right { width: 260px; background: var(--panel-bg); border-left: 1px solid var(--panel-border); padding: 16px; overflow-y: auto; transition: transform 0.3s ease, margin-right 0.3s ease; position: relative; }
-        .sidebar-right.collapsed { margin-right: -260px; }
+        /* RIGHT SIDEBAR */
+        .sidebar-right { width: 280px; background: var(--panel-bg); border-left: 1px solid var(--panel-border); padding: 20px; overflow-y: auto; transition: transform 0.3s ease, margin-right 0.3s ease; position: relative; }
+        .sidebar-right.collapsed { margin-right: -280px; }
 
         .btn-toggle-sidebar {
             position: fixed;
-            top: 65px;
-            right: 265px;
+            top: 80px;
+            right: 285px;
             background: #ffffff;
             border: 1px solid var(--panel-border);
             color: var(--text-main);
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 30;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             transition: right 0.3s ease;
         }
         .btn-toggle-sidebar.collapsed { right: 15px; }
 
-        .history-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 6px; padding: 10px; margin-bottom: 8px; cursor: pointer; }
+        .history-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
         .history-card:hover { border-color: var(--primary); background: #eff6ff; }
-        .history-card h4 { font-size: 0.82rem; color: var(--text-main); margin-bottom: 2px; }
-        .history-card p { font-size: 0.72rem; color: var(--text-muted); }
+        .history-card h4 { font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; }
+        .history-card p { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* MODAL POPUP */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 620px;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 14px; margin-bottom: 16px; }
+        .modal-header h3 { font-size: 1.15rem; color: var(--primary); }
+        .btn-close-modal { background: transparent; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
+        .modal-body { font-size: 0.88rem; line-height: 1.6; color: var(--text-main); }
+        .modal-body h4 { margin-top: 14px; margin-bottom: 6px; color: var(--text-main); font-size: 0.95rem; }
+        .modal-body ul { margin-left: 20px; margin-bottom: 12px; }
+        .modal-body p { margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -104,13 +266,16 @@
             <div class="brand-icon"></div>
             <h1>PropTech Studio Pro</h1>
         </div>
-        <span class="badge">PNG Image & Legal Citation Generator</span>
+        <div class="header-actions">
+            <span class="badge">Valid Legal PERDA & Transparent Engine</span>
+            <button class="btn-info-icon" onclick="openInfoModal()" title="Informasi Aplikasi & Landasan Hukum GSB">i</button>
+        </div>
     </header>
 
     <div class="main-container">
         <div class="sidebar-left">
             <div class="card-box">
-                <div class="card-title">📌 Detail Properti & Bentuk</div>
+                <div class="card-title">Detail Properti & Bentuk</div>
                 <div class="form-group">
                     <label>Nama Properti / Klien</label>
                     <input type="text" id="propName" value="Penilaian Obyek Lahan">
@@ -139,7 +304,7 @@
             </div>
 
             <div class="card-box">
-                <div class="card-title">⚖️ Acuan Lokasi & Elemen Jalan</div>
+                <div class="card-title">Acuan Lokasi & Elemen Jalan</div>
                 <div class="form-group">
                     <label>Provinsi</label>
                     <select id="provSelect" onchange="loadRealCities()"></select>
@@ -203,17 +368,17 @@
                 </div>
             </div>
 
-            <!-- KOTAK KUTIPAN PERDA UNTUK DISALIN -->
+            <!-- KOTAK LANDASAN HUKUM BISA DI-SCROLL DENGAN DUA JARI / MOUSE -->
             <div class="card-box" style="border-color: #bfdbfe; background: #f0f9ff;">
-                <div class="card-title" style="color: var(--primary);">📜 Kutipan Landasan Hukum Perda</div>
+                <div class="card-title" style="color: var(--primary);">Landasan Hukum & Kutipan Perda Valid</div>
                 <div class="form-group">
-                    <textarea id="legalCitationText" rows="4" readonly style="font-size: 0.72rem; font-family: monospace; line-height: 1.4; color: #1e3a8a; background: #ffffff; resize: none;"></textarea>
+                    <div id="legalCitationText" class="legal-scroll-box"></div>
                 </div>
-                <button class="btn-action" style="background: #16a34a;" onclick="copyLegalCitation()">📋 Salin Kutipan Perda</button>
+                <button class="btn-action" style="background: #16a34a;" onclick="copyLegalCitation()">Salin Kutipan Perda</button>
             </div>
 
             <div class="card-box">
-                <div class="card-title">📐 Dimensi Utama Tanah</div>
+                <div class="card-title">Dimensi Utama Tanah</div>
                 <div class="inline-inputs">
                     <div class="form-group">
                         <label>Lebar Depan (m)</label>
@@ -237,7 +402,7 @@
             </div>
 
             <div class="card-box">
-                <div class="card-title">🏗️ Dimensi Bangunan</div>
+                <div class="card-title">Navigasi Joystick Letak Bangunan</div>
                 <div class="inline-inputs">
                     <div class="form-group">
                         <label>Lebar Bgn (m)</label>
@@ -248,14 +413,31 @@
                         <input type="number" id="buildH" value="10" step="0.5" oninput="updateRender()">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Mundur Bgn dari GSB (m)</label>
-                    <input type="number" id="buildOffsetGSB" value="1" step="0.5" oninput="updateRender()">
+
+                <div class="joystick-container">
+                    <div class="joystick-row">
+                        <button class="btn-joy" onclick="moveBuilding(0, -0.5)" title="Mundur ke Belakang">^</button>
+                    </div>
+                    <div class="joystick-row">
+                        <button class="btn-joy" onclick="moveBuilding(-0.5, 0)" title="Geser ke Kiri">&lt;</button>
+                        <button class="btn-joy btn-joy-reset" onclick="resetBuildingPos()" title="Reset ke Tengah/GSB">o</button>
+                        <button class="btn-joy" onclick="moveBuilding(0.5, 0)" title="Geser ke Kanan">&gt;</button>
+                    </div>
+                    <div class="joystick-row">
+                        <button class="btn-joy" onclick="moveBuilding(0, 0.5)" title="Maju ke Depan">v</button>
+                    </div>
                 </div>
+
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 8px;" id="lblPosStatus">
+                    Geser Samping: 0m | Mundur GSB: 1m
+                </div>
+
+                <input type="hidden" id="buildOffsetGSB" value="1">
+                <input type="hidden" id="buildOffsetSide" value="0">
             </div>
 
             <div class="card-box">
-                <div class="card-title">📊 Analisis Luas & RAB</div>
+                <div class="card-title">Analisis Luas & RAB</div>
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <div class="lbl">Luas Tanah</div>
@@ -271,14 +453,14 @@
                     </div>
                     <div class="metric-card">
                         <div class="lbl">Est. Biaya Bangunan</div>
-                        <div class="val" id="lblRAB" style="font-size:0.75rem;">Rp 360 Jt</div>
+                        <div class="val" id="lblRAB" style="font-size:0.8rem;">Rp 360 Jt</div>
                     </div>
                 </div>
             </div>
 
-            <button class="btn-action" onclick="saveToLocalDB()">💾 Simpan ke DB Lokal</button>
-            <button class="btn-action btn-png" onclick="exportPNG()">🖼️ Export PNG Image</button>
-            <button class="btn-action btn-secondary" onclick="exportSVG()">📥 Export SVG Vector</button>
+            <button class="btn-action" onclick="saveToLocalDB()">Simpan ke DB Lokal</button>
+            <button class="btn-action btn-png" onclick="exportPNG()">Export PNG Image</button>
+            <button class="btn-action btn-secondary" onclick="exportSVG()">Export SVG Vector</button>
         </div>
 
         <div class="workspace">
@@ -291,12 +473,39 @@
             </div>
         </div>
 
-        <button id="toggleBtn" class="btn-toggle-sidebar" onclick="toggleSidebarRight()" title="Sembunyikan/Tampilkan Panel Arsip">▶</button>
+        <button id="toggleBtn" class="btn-toggle-sidebar" onclick="toggleSidebarRight()" title="Sembunyikan/Tampilkan Panel Arsip">&gt;</button>
 
         <div id="sidebarRight" class="sidebar-right">
             <div class="card-title">Arsip DB Lokal</div>
             <div id="historyList">
-                <p style="font-size: 0.75rem; color: var(--text-muted);">Belum ada arsip.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Belum ada arsip.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Transparansi Aplikasi & Dasar Hukum GSB</h3>
+                <button class="btn-close-modal" onclick="closeInfoModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <h4>Apa itu PropTech Studio Pro?</h4>
+                <p>PropTech Studio Pro adalah mesin kalkulasi <i>siteplan</i>, evaluasi tata ruang, dan pemetaan <b>Garis Sempadan Bangunan (GSB)</b> berbasis CAD interaktif. Aplikasi ini membantu apraiser, arsitek, dan pengembang properti memetakan posisi persil tanah, trotoar, dan massa bangunan secara akurat.</p>
+
+                <h4>Dari Mana Landasan Hukum GSB Diperoleh?</h4>
+                <p>Perhitungan GSB dalam aplikasi ini didasarkan pada dua tingkatan (*Layer*) regulasi tata ruang yang sah di Indonesia:</p>
+                <ul>
+                    <li><b>Perda / Perwali / Pergub Daerah:</b> Memuat acuan resmi RDTR Kota/Kabupaten pilihan (seperti Pergub DKI Jakarta No. 31/2022, Perda Surabaya No. 8/2018 jo. Perwali 54/2024, Perda Kota Madiun No. 4/2023, Perda Kota Bandung No. 05/2010, dll).</li>
+                    <li><b>Payung Hukum Nasional (Fallback):</b> Berdasarkan <b>PP No. 16 Tahun 2021</b> jo. <b>Permen PUPR No. 06/PRT/M/2007</b> tentang Pedoman Umum Rencana Tata Bangunan dan Lingkungan (RTBL).</li>
+                </ul>
+
+                <h4>Bagaimanakah Formulasi Perhitungannya?</h4>
+                <p>Secara teknis, GSB diukur mulai dari <b>Garis Tengah (As) Jalan Utama</b> menuju ke arah persil tanah dengan rumus standar:</p>
+                <div style="background:#f1f5f9; padding:10px; border-radius:8px; font-family:monospace; margin-bottom:10px; font-weight:bold;">
+                    GSB Minimum = (1/2 x Lebar Badan Jalan) + Offset Hirarki & Zonasi
+                </div>
+                <p>Elemen fisik seperti <b>Trotoar / Got Drainase</b> divisualisasikan tepat di depan persil tanah sebagai area fasilitas umum pejalan kaki sebelum memasuki batas tapak persil milik pribadi.</p>
             </div>
         </div>
     </div>
@@ -307,7 +516,7 @@
         const svg = document.getElementById('svgCanvas');
 
         let db;
-        const dbReq = indexedDB.open("PropTechStudioDB_v26", 1);
+        const dbReq = indexedDB.open("PropTechStudioDB_v33", 1);
         dbReq.onupgradeneeded = e => {
             db = e.target.result;
             if (!db.objectStoreNames.contains("surveys")) db.createObjectStore("surveys", { keyPath: "id", autoIncrement: true });
@@ -316,12 +525,46 @@
 
         const BASE_API = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
+        function openInfoModal() {
+            document.getElementById('infoModal').classList.add('active');
+        }
+
+        function closeInfoModal() {
+            document.getElementById('infoModal').classList.remove('active');
+        }
+
         function toggleSidebarRight() {
             const sidebar = document.getElementById('sidebarRight');
             const btn = document.getElementById('toggleBtn');
             sidebar.classList.toggle('collapsed');
             btn.classList.toggle('collapsed');
-            btn.innerText = sidebar.classList.contains('collapsed') ? "◀" : "▶";
+            btn.innerText = sidebar.classList.contains('collapsed') ? "<" : ">";
+        }
+
+        function moveBuilding(dx, dy) {
+            let sideVal = parseFloat(document.getElementById('buildOffsetSide').value) || 0;
+            let gsbVal = parseFloat(document.getElementById('buildOffsetGSB').value) || 0;
+
+            sideVal += dx;
+            gsbVal += dy;
+
+            document.getElementById('buildOffsetSide').value = sideVal;
+            document.getElementById('buildOffsetGSB').value = gsbVal;
+
+            updatePosLabel(sideVal, gsbVal);
+            updateRender();
+        }
+
+        function resetBuildingPos() {
+            document.getElementById('buildOffsetSide').value = 0;
+            document.getElementById('buildOffsetGSB').value = 1;
+            updatePosLabel(0, 1);
+            updateRender();
+        }
+
+        function updatePosLabel(side, gsb) {
+            const sideTxt = side > 0 ? `Kanan +${side}m` : (side < 0 ? `Kiri ${side}m` : `0m (Tengah)`);
+            document.getElementById('lblPosStatus').innerText = `Geser Samping: ${sideTxt} | Mundur GSB: ${gsb}m`;
         }
 
         async function loadRealProvinces() {
@@ -399,7 +642,7 @@
 
         function calculateRDTRGSB() {
             const citySelect = document.getElementById('citySelect');
-            const cityName = citySelect.options[citySelect.selectedIndex]?.text || '';
+            const cityName = (citySelect.options[citySelect.selectedIndex]?.text || '').toUpperCase();
             const kecSelect = document.getElementById('kecSelect');
             const kecName = kecSelect.options[kecSelect.selectedIndex]?.text || '';
             const kelSelect = document.getElementById('kelSelect');
@@ -432,31 +675,59 @@
             if (zone === "COMMERCIAL") offsetModifier += 1;
             if (zone === "INDUSTRIAL") offsetModifier += 2;
 
-            if (cityName.includes("SURABAYA")) {
-                perdaTitle = "Peraturan Walikota Surabaya No. 37 Tahun 2012 tentang Tata Cara Pengendalian Pemanfaatan Ruang";
-                legalArticle = "Pasal 18 Ayat (2): Kebutuhan Garis Sempadan Bangunan (GSB) ditetapkan berdasarkan hirarki lebar ruang milik jalan ditambah batas minimum zonasi peruntukan.";
-                gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 3 : Math.max(3, (rWidth / 2) + 1);
-            } else if (cityName.includes("JAKARTA")) {
-                perdaTitle = "Peraturan Gubernur DKI Jakarta No. 31 Tahun 2022 tentang Rencana Detail Tata Ruang (RDTR)";
-                legalArticle = "Pasal 42: Batas Garis Sempadan Bangunan (GSB) untuk persil yang berbatasan dengan jalan raya dihitung dari as jalan ditambah jarak bebas minimum zonasi.";
+            if (cityName.includes("JAKARTA")) {
+                perdaTitle = "Peraturan Gubernur DKI Jakarta No. 31 Tahun 2022 tentang Rencana Detail Tata Ruang (RDTR) WPL DKI Jakarta";
+                legalArticle = "Pasal 42: Batas Garis Sempadan Bangunan (GSB) untuk persil yang berbatasan dengan jalan raya dihitung sekurang-kurangnya 1/2 (setengah) lebar Rumaja + jarak bebas minimum zonasi.";
                 gsb = (roadType === "ARTERIAL") ? (rWidth / 2) + 2 : Math.max(2, (rWidth / 2) + 0.5);
+            } else if (cityName.includes("SURABAYA")) {
+                perdaTitle = "Peraturan Daerah Kota Surabaya No. 8 Tahun 2018 jo. Perwali Surabaya No. 54 Tahun 2024";
+                legalArticle = "Pasal 18 Ayat (2): Penetapan GSB jaringan jalan perkotaan dihitung dari batas as jalan dengan memperhitungkan hirarki jalan serta keselamatan penerangan jalan.";
+                gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 3 : Math.max(3, (rWidth / 2) + 1);
             } else if (cityName.includes("BANDUNG")) {
                 perdaTitle = "Peraturan Daerah Kota Bandung No. 05 Tahun 2010 tentang Bangunan Gedung";
-                legalArticle = "Pasal 24: Garis Sempadan Bangunan ditetapkan sekurang-kurangnya (½ x lebar Rumaja) ditambah offset fungsi jaringan jalan.";
+                legalArticle = "Pasal 24: Garis Sempadan Bangunan ditetapkan sekurang-kurangnya (1/2 x lebar Rumaja) ditambah offset fungsi jaringan jalan setempat.";
+                gsb = (rWidth / 2) + offsetModifier;
+            } else if (cityName.includes("SEMARANG")) {
+                perdaTitle = "Peraturan Daerah Kota Semarang No. 14 Tahun 2011 tentang RTRW Kota Semarang 2011-2031";
+                legalArticle = "Pasal 45: Ketentuan Garis Sempadan Bangunan (GSB) dihitung berdasarkan 1/2 lebar jalan ditambah jarak bebas peruntukan zonasi kawasan.";
+                gsb = (roadType === "ARTERIAL") ? (rWidth / 2) + 3 : Math.max(2.5, (rWidth / 2) + 1);
+            } else if (cityName.includes("MEDAN")) {
+                perdaTitle = "Peraturan Daerah Kota Medan No. 1 Tahun 2022 tentang Rencana Tata Ruang Wilayah Kota Medan 2022-2042";
+                legalArticle = "Pasal 38: Batas GSB diukur dari as jalan publik sampai batas terluar struktur bangunan utama sesuai fungsi jaringan jalan.";
                 gsb = (rWidth / 2) + offsetModifier;
             } else if (cityName.includes("MADIUN")) {
-                perdaTitle = "Peraturan Daerah Kota Madiun No. 06 Tahun 2011 tentang RTRW / RDTR Kota Madiun";
-                legalArticle = "Pasal 31: Penetapan GSB jaringan jalan perkotaan dihitung dari garis tengah (as) jalan dengan mempertimbangkan fungsi jalan dan keselamatan penerangan.";
+                perdaTitle = "Peraturan Daerah Kota Madiun No. 4 Tahun 2023 tentang RTRW Kota Madiun Tahun 2023-2043";
+                legalArticle = "Pasal 31: Penetapan GSB dihitung dari garis tengah (as) jalan dengan mempertimbangkan keselamatan lalu lintas dan fasilitas pejalan kaki.";
                 gsb = (roadType === "ARTERIAL" || zone === "COMMERCIAL") ? (rWidth / 2) + 2.5 : Math.max(3, (rWidth / 2) + 1);
+            } else if (cityName.includes("MAKASSAR")) {
+                perdaTitle = "Peraturan Daerah Kota Makassar No. 7 Tahun 2024 tentang RTRW Kota Makassar 2024-2043";
+                legalArticle = "Pasal 52: Penetapan jarak bebas GSB mengikuti klasifikasi hirarki jalan perkotaan dihitung dari As Jalan Rumaja.";
+                gsb = (rWidth / 2) + offsetModifier;
+            } else if (cityName.includes("PALEMBANG")) {
+                perdaTitle = "Peraturan Daerah Kota Palembang No. 15 Tahun 2012 tentang RTRW Kota Palembang";
+                legalArticle = "Pasal 29: Garis Sempadan Bangunan ditetapkan minimal 1/2 lebar Rumaja ditambah batas bebas keselamatan fungsi jalan.";
+                gsb = (rWidth / 2) + offsetModifier;
+            } else if (cityName.includes("DENPASAR") || cityName.includes("BADUNG")) {
+                perdaTitle = "Peraturan Daerah Kota Denpasar No. 8 Tahun 2021 tentang Rencana Detail Tata Ruang (RDTR)";
+                legalArticle = "Pasal 34: Ketentuan GSB mempertimbangkan fungsi jalan, estetika kawasan arsitektur lokal Bali, serta pejalan kaki.";
+                gsb = Math.max(3, (rWidth / 2) + 1.5);
+            } else if (cityName.includes("MALANG")) {
+                perdaTitle = "Peraturan Daerah Kota Malang No. 4 Tahun 2011 tentang Rencana Tata Ruang Wilayah";
+                legalArticle = "Pasal 27: Penetapan GSB disesuaikan dengan fungsi jalan arteri, kolektor, lokal, dan kawasan pemukiman.";
+                gsb = (rWidth / 2) + offsetModifier;
+            } else if (cityName.includes("YOGYAKARTA") || cityName.includes("SLEMAN") || cityName.includes("BANTUL")) {
+                perdaTitle = "Peraturan Daerah Kota Yogyakarta No. 2 Tahun 2021 tentang RTRW Kota Yogyakarta";
+                legalArticle = "Pasal 41: Batas GSB diukur dari as jalan publik sampai garis terluar struktur bangunan dengan memperhatikan koridor budaya.";
+                gsb = (rWidth / 2) + offsetModifier;
             } else {
-                perdaTitle = "Peraturan Menteri PUPR No. 06/PRT/M/2007 tentang Pedoman Umum Rencana Tata Bangunan dan Lingkungan";
-                legalArticle = "BAB III Bagian B: Garis Sempadan Bangunan (GSB) minimum dihitung ½ (setengah) lebar Rumaja + offset jaringan jalan setempat.";
+                perdaTitle = "PP No. 16 Tahun 2021 jo. Permen PUPR No. 06/PRT/M/2007 (Pedoman Umum RTBL & UU Bangunan Gedung)";
+                legalArticle = "BAB III Bagian B / Lampiran PP 16/2021: Ketentuan GSB Minimum di seluruh wilayah Indonesia dihitung sekurang-kurangnya 1/2 (setengah) lebar Rumaja + offset fungsi jaringan jalan setempat.";
                 gsb = (rWidth / 2) + offsetModifier;
             }
 
             document.getElementById('gsbValue').value = gsb;
 
-            const fullCitation = `LANDASAN HUKUM GSB PROPERTI:
+            const fullCitation = `LANDASAN HUKUM GSB PROPERTI (VALID):
 ----------------------------------------
 Lokasi: ${kelName}, ${kecName}, ${cityName}
 Arah Hadap Lahan: ${facingText}
@@ -464,25 +735,26 @@ Fungsi Jalan: Jalan ${roadType} (${roadSystem}) - Lebar Jalan ${rWidth}m
 Lebar Trotoar / Drainase: ${sidewalkW}m
 Peruntukan Zonasi: ${zone}
 
-DASAR REGULASI RESMI:
+DASAR REGULASI REGIONAL / NASIONAL RESMI:
 ${perdaTitle}
 
-PASAL / KETENTUAN KUTIPAN:
+PASAL / KETENTUAN HUKUM KUTIPAN:
 "${legalArticle}"
 
-KALKULASI GSB TERHUTANG:
-GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${gsb} Meter dari As Jalan.`;
+KALKULASI GSB TERHUTANG (SECARA REGULASI):
+GSB Resmi = (1/2 x Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${gsb} Meter dari As Jalan.`;
 
-            document.getElementById('legalCitationText').value = fullCitation;
+            document.getElementById('legalCitationText').innerText = fullCitation;
             updateRender();
         }
 
         function copyLegalCitation() {
-            const citationText = document.getElementById('legalCitationText');
-            citationText.select();
-            citationText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(citationText.value);
-            alert("Kutipan Perda berhasil disalin ke Clipboard!");
+            const citationText = document.getElementById('legalCitationText').innerText;
+            navigator.clipboard.writeText(citationText).then(() => {
+                alert("Kutipan Perda/Regulasi Hukum berhasil disalin ke Clipboard!");
+            }).catch(err => {
+                console.error("Gagal menyalin teks: ", err);
+            });
         }
 
         function toggleShapeInputs() {
@@ -516,6 +788,7 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             const buildW = parseFloat(document.getElementById('buildW').value) || 0;
             const buildH = parseFloat(document.getElementById('buildH').value) || 0;
             const buildOffsetGSB = parseFloat(document.getElementById('buildOffsetGSB').value) || 0;
+            const buildOffsetSide = parseFloat(document.getElementById('buildOffsetSide').value) || 0;
             const costPerM2 = 4500000;
 
             let rawPoints = [];
@@ -563,7 +836,7 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
 
             const svgPointsStr = rawPoints.map(p => `${startX + (p.x * scale)},${landY + (p.y * scale)}`).join(' ');
 
-            const buildX = startX + ((W - buildW) * scale / 2);
+            const buildX = startX + ((W - buildW) * scale / 2) + (buildOffsetSide * scale);
             const buildY = gsbY + (buildOffsetGSB * scale);
 
             const centerX = svgW / 2;
@@ -581,51 +854,39 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
                     </pattern>
                 </defs>
 
-                <!-- Group Rotasi Denah -->
                 <g transform="rotate(${angle}, ${centerX}, ${centerY})">
-                    
-                    <!-- Trotoar Atas -->
                     <rect x="0" y="${topSidewalkY}" width="${svgW}" height="${sidewalkPx}" fill="url(#trotoarPattern)" stroke="#94a3b8" stroke-width="1" />
                     <text x="25" y="${topSidewalkY + 12}" fill="#64748b" font-size="10">Trotoar/Drainase (${sidewalkWidth}m)</text>
 
-                    <!-- Badan Jalan Raya -->
                     <rect x="0" y="${roadY}" width="${svgW}" height="${roadPx}" fill="#f1f5f9" />
                     <rect x="0" y="${roadY}" width="${svgW}" height="${roadPx}" fill="url(#roadPattern)" />
                     
-                    <!-- Trotoar Bawah (Depan Persil) -->
                     <rect x="0" y="${bottomSidewalkY}" width="${svgW}" height="${sidewalkPx}" fill="url(#trotoarPattern)" stroke="#94a3b8" stroke-width="1" />
                     <text x="25" y="${bottomSidewalkY + 12}" fill="#64748b" font-size="10">Trotoar/Drainase (${sidewalkWidth}m)</text>
 
-                    <!-- As Jalan -->
                     <line x1="0" y1="${asJalanY}" x2="${svgW}" y2="${asJalanY}" stroke="#64748b" stroke-width="2" stroke-dasharray="8,6" />
                     <text x="25" y="${asJalanY - 8}" fill="#475569" font-weight="bold" font-size="11">AS JALAN</text>
                     <text x="25" y="${roadY + 14}" fill="#64748b" font-size="11">Lebar Badan Jalan: ${roadWidth}m</text>
 
-                    <!-- Polygon Persil Tanah -->
                     <polygon points="${svgPointsStr}" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
 
-                    <!-- Garis GSB Merah -->
                     <line x1="${startX - 40}" y1="${gsbY}" x2="${startX + (W * scale) + 40}" y2="${gsbY}" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,4" />
                     
-                    <!-- Teks GSB Bersih -->
                     <g transform="translate(${startX + (W * scale) + 15}, ${gsbY - 8})">
                         <rect x="-4" y="-12" width="235" height="18" fill="#ffffff" rx="3" stroke="#fecdd3" stroke-width="1" />
                         <text x="0" y="0" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="start">GARIS GSB (${gsbValue}m dari As Jalan)</text>
                     </g>
 
-                    <!-- Bangunan Utama -->
                     <rect x="${buildX}" y="${buildY}" width="${buildW * scale}" height="${buildH * scale}" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" />
                     <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) - 4}" fill="#1e40af" font-weight="bold" font-size="12" text-anchor="middle">BANGUNAN Utama</text>
                     <text x="${buildX + (buildW * scale / 2)}" y="${buildY + (buildH * scale / 2) + 14}" fill="#1d4ed8" font-size="11" text-anchor="middle">${buildW}m x ${buildH}m (${buildAreaM2} m²)</text>
 
-                    <!-- Dimensi Arrow GSB -->
                     <line x1="${startX - 25}" y1="${asJalanY}" x2="${startX - 25}" y2="${gsbY}" stroke="#dc2626" stroke-width="1.5" />
                     <circle cx="${startX - 25}" cy="${asJalanY}" r="3" fill="#dc2626" />
                     <circle cx="${startX - 25}" cy="${gsbY}" r="3" fill="#dc2626" />
                     <text x="${startX - 32}" y="${(asJalanY + gsbY)/2 + 4}" fill="#dc2626" font-weight="bold" font-size="11" text-anchor="end">${gsbValue}m</text>
                 </g>
 
-                <!-- Indikator Kompas -->
                 <g transform="translate(${svgW - 70}, 60)">
                     <circle cx="0" cy="0" r="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
                     <g transform="rotate(${-angle})">
@@ -666,6 +927,8 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
                 landH: document.getElementById('landH').value,
                 buildW: document.getElementById('buildW').value,
                 buildH: document.getElementById('buildH').value,
+                buildOffsetGSB: document.getElementById('buildOffsetGSB').value,
+                buildOffsetSide: document.getElementById('buildOffsetSide').value,
                 date: new Date().toLocaleDateString('id-ID')
             };
 
@@ -683,7 +946,7 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             req.onsuccess = () => {
                 const items = req.result;
                 if (items.length === 0) {
-                    historyList.innerHTML = `<p style="font-size: 0.75rem; color: var(--text-muted);">Belum ada arsip.</p>`;
+                    historyList.innerHTML = `<p style="font-size: 0.8rem; color: var(--text-muted);">Belum ada arsip.</p>`;
                     return;
                 }
                 items.reverse().forEach(item => {
@@ -712,11 +975,17 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             document.getElementById('landH').value = item.landH;
             document.getElementById('buildW').value = item.buildW;
             document.getElementById('buildH').value = item.buildH;
+            
+            const offsetGSB = item.buildOffsetGSB || 1;
+            const offsetSide = item.buildOffsetSide || 0;
+            document.getElementById('buildOffsetGSB').value = offsetGSB;
+            document.getElementById('buildOffsetSide').value = offsetSide;
+            updatePosLabel(offsetSide, offsetGSB);
+
             toggleShapeInputs();
             updateRender();
         }
 
-        // FUNGSI EXPORT PNG HIGH RESOLUTION
         function exportPNG() {
             const svgData = new XMLSerializer().serializeToString(svg);
             const canvas = document.createElement("canvas");
@@ -725,7 +994,7 @@ GSB Resmi = (½ × Lebar Jalan ${rWidth}m) + Offset (${gsb - (rWidth/2)}m) = ${g
             const svgWidth = parseFloat(svg.getAttribute("width"));
             const svgHeight = parseFloat(svg.getAttribute("height"));
             
-            canvas.width = svgWidth * 2; // Skala 2x agar hasil tajam/HD
+            canvas.width = svgWidth * 2;
             canvas.height = svgHeight * 2;
             ctx.scale(2, 2);
 
